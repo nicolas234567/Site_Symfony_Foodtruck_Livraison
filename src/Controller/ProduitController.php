@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[Route('/produits')]
 class ProduitController extends AbstractController
@@ -34,6 +35,13 @@ class ProduitController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile|null $imageFile */
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $nomFichier = uniqid() . '.' . $imageFile->guessExtension();
+                $imageFile->move($this->getParameter('images_directory'), $nomFichier);
+                $produit->setImage($nomFichier);
+            }
             $em->persist($produit);
             $em->flush();
             $this->addFlash('success', 'Produit créé avec succès !');
@@ -60,6 +68,12 @@ class ProduitController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $nomFichier = uniqid() . '.' . $imageFile->guessExtension();
+                $imageFile->move($this->getParameter('images_directory'), $nomFichier);
+                $produit->setImage($nomFichier);
+            }
             $em->flush();
             $this->addFlash('success', 'Produit modifié !');
             return $this->redirectToRoute('produit_index');

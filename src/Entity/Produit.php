@@ -32,6 +32,9 @@ class Produit
     #[ORM\Column(nullable: true)]
     private ?bool $disponible = true;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
+
     #[ORM\OneToMany(mappedBy: 'produit', targetEntity: LigneCommande::class)]
     private Collection $lignesCommande;
 
@@ -56,4 +59,7 @@ class Produit
     public function setDisponible(?bool $disponible): static { $this->disponible = $disponible; return $this; }
 
     public function getLignesCommande(): Collection { return $this->lignesCommande; }
+
+    public function getImage(): ?string { return $this->image; }
+    public function setImage(?string $image): static { $this->image = $image; return $this; }
 }
