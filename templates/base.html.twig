@@ -27,7 +27,7 @@
     </style>
     {% block stylesheets %}{% endblock %}
 </head>
-<body>
+<body style="min-height:100vh;display:flex;flex-direction:column;">
 
 {# ─── Barre de navigation ──────────────────────────────────────────────── #}
 <nav class="navbar navbar-expand-lg navbar-dark">
@@ -101,7 +101,7 @@
 </div>
 
 {# ─── Contenu principal ─────────────────────────────────────────────────── #}
-<main class="container my-4">
+<main class="container my-4" style="flex:1;">
     {% block body %}{% endblock %}
 </main>
 
