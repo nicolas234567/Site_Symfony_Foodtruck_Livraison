@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+{% block title %}Passer une commande{% endblock %}
+
+{% block body %}
+<h1 class="mb-4"><i class="bi bi-cart-plus text-warning"></i> Passer une commande</h1>
+
+<form method="post">
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+        {% for produit in produits %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h5 class="fw-bold">{{ produit.nom }}</h5>
+                        <p class="text-muted small">{{ produit.description ?? '' }}</p>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold text-warning fs-5">{{ produit.prix|number_format(2, ',', ' ') }} €</span>
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Qté</span>
+                            <input type="number"
+                                   name="quantites[{{ produit.id }}]"
+                                   value="0"
+                                   min="0"
+                                   max="20"
+                                   class="form-control qte-input"
+                                   data-prix="{{ produit.prix }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ─── Récapitulatif dynamique ──────────────────────────────────────── #}
+    <div class="card mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <span class="fs-5 fw-bold">Total estimé :</span>
+            <span class="fs-4 fw-bold text-warning" id="total">0,00 €</span>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-orange btn-lg">
+        <i class="bi bi-check-circle"></i> Confirmer la commande
+    </button>
+    <a href="{{ path('produit_index') }}" class="btn btn-outline-secondary btn-lg ms-2">Annuler</a>
+</form>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    const inputs = document.querySelectorAll('.qte-input');
+    const totalEl = document.getElementById('total');
+
+    function recalculer() {
+        let total = 0;
+        inputs.forEach(i => {
+            total += parseFloat(i.dataset.prix) * parseInt(i.value || 0);
+        });
+        totalEl.textContent = total.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' €';
+    }
+
+    inputs.forEach(i => i.addEventListener('input', recalculer));
+</script>
+{% endblock %}

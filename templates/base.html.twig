@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Lens 🍔 Food-Truck{% endblock %}</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --lens-orange: #FF6B35;
+            --lens-dark:   #1a1a2e;
+        }
+        body { background-color: #f8f9fa; }
+        .navbar { background-color: var(--lens-dark) !important; }
+        .navbar-brand { color: var(--lens-orange) !important; font-weight: 800; font-size: 1.4rem; }
+        .btn-orange { background-color: var(--lens-orange); color: white; border: none; }
+        .btn-orange:hover { background-color: #e85e2e; color: white; }
+        .badge-en_attente { background-color: #ffc107; color: #000; }
+        .badge-prete      { background-color: #0dcaf0; color: #000; }
+        .badge-livree     { background-color: #198754; color: #fff; }
+        .card { border: none; box-shadow: 0 2px 12px rgba(0,0,0,.08); border-radius: 12px; }
+        .card-header { border-radius: 12px 12px 0 0 !important; background-color: var(--lens-dark); color: white; }
+        footer { margin-top: 4rem; padding: 1.5rem 0; background: var(--lens-dark); color: #aaa; }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+
+{# ─── Barre de navigation ──────────────────────────────────────────────── #}
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('produit_index') }}">🍔 Lens FoodTruck</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('produit_index') }}">
+                        <i class="bi bi-grid"></i> Menu
+                    </a>
+                </li>
+                {% if app.user %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('commande_new') }}">
+                        <i class="bi bi-cart-plus"></i> Commander
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('commande_index') }}">
+                        <i class="bi bi-receipt"></i> Mes commandes
+                    </a>
+                </li>
+                {% if is_granted('ROLE_ADMIN') %}
+                <li class="nav-item">
+                    <a class="nav-link text-warning" href="{{ path('admin_dashboard') }}">
+                        <i class="bi bi-speedometer2"></i> Admin
+                    </a>
+                </li>
+                {% endif %}
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                {% if app.user %}
+                <li class="nav-item">
+                    <span class="nav-link text-light opacity-75">
+                        <i class="bi bi-person-circle"></i> {{ app.user.nom ?? app.user.email }}
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-sm btn-orange px-3" href="{{ path('app_logout') }}">
+                        <i class="bi bi-box-arrow-right"></i> Déconnexion
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('app_login') }}">Connexion</a>
+                </li>
+                <li class="nav-item ms-2">
+                    <a class="nav-link btn btn-sm btn-orange px-3" href="{{ path('app_register') }}">Inscription</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{# ─── Flash messages ────────────────────────────────────────────────────── #}
+<div class="container mt-3">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'success' ? 'success' : (label == 'danger' ? 'danger' : 'info') }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+{# ─── Contenu principal ─────────────────────────────────────────────────── #}
+<main class="container my-4">
+    {% block body %}{% endblock %}
+</main>
+
+<footer class="text-center">
+    <small>Food-Truck &copy; {{ "now"|date("Y") }} — Projet Symfony Nicolas BREGEVIN </small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block javascripts %}{% endblock %}
+            {{ encore_entry_script_tags('app') }}
+</body>
+</html>
