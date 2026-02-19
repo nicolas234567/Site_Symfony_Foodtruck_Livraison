@@ -11,33 +11,20 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/commandes')]
+#[IsGranted('ROLE_USER')]
 class CommandeController extends AbstractController
 {
-    // 🔒 Mode démo activé : permet de simuler ROLE_ADMIN et tout afficher
-    private bool $demoMode = true;
-
     // ─── Mes commandes ────────────────────────────────────────────────────────
     #[Route('', name: 'commande_index', methods: ['GET'])]
     public function index(CommandeRepository $repo): Response
     {
-        $user = $this->getUser();
-
-        if ($this->demoMode && !$user) {
-            // Création d'un utilisateur factice pour Twig
-            $user = new class {
-                private array $roles = ['ROLE_USER','ROLE_ADMIN'];
-                public function getRoles() { return $this->roles; }
-                public function setRoles(array $roles) { $this->roles = $roles; }
-            };
-        }
-
-        $commandes = $this->demoMode ? $repo->findAll() : $repo->findByClient($user);
+        $commandes = $repo->findByClient($this->getUser());
 
         return $this->render('commande/index.html.twig', [
             'commandes' => $commandes,
-            'demoMode' => $this->demoMode,
         ]);
     }
 
@@ -45,21 +32,11 @@ class CommandeController extends AbstractController
     #[Route('/nouvelle', name: 'commande_new', methods: ['GET', 'POST'])]
     public function new(Request $request, ProduitRepository $produitRepo, EntityManagerInterface $em): Response
     {
-        $user = $this->getUser();
-
-        if ($this->demoMode && !$user) {
-            $user = new class {
-                private array $roles = ['ROLE_USER','ROLE_ADMIN'];
-                public function getRoles() { return $this->roles; }
-                public function setRoles(array $roles) { $this->roles = $roles; }
-            };
-        }
-
         $produits = $produitRepo->findDisponibles();
 
         if ($request->isMethod('POST')) {
             $commande = new Commande();
-            $commande->setClient($user);
+            $commande->setClient($this->getUser());
 
             $quantites = $request->request->all('quantites');
 
@@ -79,61 +56,28 @@ class CommandeController extends AbstractController
 
             if ($commande->getLignesCommande()->isEmpty()) {
                 $this->addFlash('danger', 'Veuillez choisir au moins un produit.');
-                return $this->render('commande/new.html.twig', [
-                    'produits' => $produits,
-                    'demoMode' => $this->demoMode,
-                ]);
+                return $this->render('commande/new.html.twig', ['produits' => $produits]);
             }
 
-            // ⚡ Mode démo : ne flush pas pour ne rien modifier en base
-            if (!$this->demoMode) {
-                $em->persist($commande);
-                $em->flush();
-            }
+            $em->persist($commande);
+            $em->flush();
 
-            $this->addFlash('success', 'Commande passée avec succès ! (Mode démo)');
+            $this->addFlash('success', 'Commande passée avec succès !');
             return $this->redirectToRoute('commande_show', ['id' => $commande->getId()]);
         }
 
-        return $this->render('commande/new.html.twig', [
-            'produits' => $produits,
-            'demoMode' => $this->demoMode,
-        ]);
+        return $this->render('commande/new.html.twig', ['produits' => $produits]);
     }
 
     // ─── Détail commande ──────────────────────────────────────────────────────
     #[Route('/{id}', name: 'commande_show', methods: ['GET'])]
-    public function show(CommandeRepository $repo, ?Commande $commande = null): Response
+    public function show(Commande $commande): Response
     {
-        $user = $this->getUser();
-
-        if ($this->demoMode && !$user) {
-            $user = new class {
-                private array $roles = ['ROLE_USER','ROLE_ADMIN'];
-                public function getRoles() { return $this->roles; }
-                public function setRoles(array $roles) { $this->roles = $roles; }
-            };
-        }
-
-        // ⚡ Mode démo : afficher toutes les commandes
-        if ($this->demoMode) {
-            $commandes = $repo->findAll();
-
-            return $this->render('commande/show.html.twig', [
-                'commande' => $commande ?: $commandes[0] ?? null,
-                'toutesCommandes' => $commandes,
-                'demoMode' => true,
-            ]);
-        }
-
-        // Sécurité normale
-        if (!$commande || ($commande->getClient() !== $user && !in_array('ROLE_ADMIN', $user->getRoles()))) {
+        // Sécurité : un client ne peut voir que ses propres commandes
+        if ($commande->getClient() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
             throw $this->createAccessDeniedException('Accès refusé à cette commande.');
         }
 
-        return $this->render('commande/show.html.twig', [
-            'commande' => $commande,
-            'demoMode' => false,
-        ]);
+        return $this->render('commande/show.html.twig', ['commande' => $commande]);
     }
 }
