@@ -1,6 +1,5 @@
 {% extends 'base.html.twig' %}
 {% block title %}Passer une commande{% endblock %}
-
 {% block body %}
 <h1 class="mb-4"><i class="bi bi-cart-plus text-warning"></i> Passer une commande</h1>
 
@@ -29,15 +28,22 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="fw-bold text-warning fs-5">{{ produit.prix|number_format(2, ',', ' ') }} €</span>
                         </div>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text">Qté</span>
-                            <input type="number"
+                        <div class="d-flex align-items-center justify-content-center gap-3 mt-2">
+                            <button type="button"
+                                    onclick="changerQte({{ produit.id }}, -1)"
+                                    class="qte-btn">-</button>
+                            <span id="affichage_{{ produit.id }}"
+                                  style="font-size:1.1rem;font-weight:bold;min-width:20px;text-align:center;">
+                                0
+                            </span>
+                            <input type="hidden"
                                    name="quantites[{{ produit.id }}]"
+                                   id="input_{{ produit.id }}"
                                    value="0"
-                                   min="0"
-                                   max="20"
-                                   class="form-control qte-input"
                                    data-prix="{{ produit.prix }}">
+                            <button type="button"
+                                    onclick="changerQte({{ produit.id }}, 1)"
+                                    class="qte-btn">+</button>
                         </div>
                     </div>
                 </div>
@@ -62,17 +68,24 @@
 
 {% block javascripts %}
 <script>
-    const inputs = document.querySelectorAll('.qte-input');
-    const totalEl = document.getElementById('total');
+    function changerQte(id, delta) {
+        const input = document.getElementById('input_' + id);
+        const affichage = document.getElementById('affichage_' + id);
+        let val = parseInt(input.value) + delta;
+        if (val < 0) val = 0;
+        if (val > 20) val = 20;
+        input.value = val;
+        affichage.textContent = val;
+        recalculer();
+    }
 
     function recalculer() {
         let total = 0;
-        inputs.forEach(i => {
-            total += parseFloat(i.dataset.prix) * parseInt(i.value || 0);
+        document.querySelectorAll('input[name^="quantites"]').forEach(input => {
+            total += parseFloat(input.dataset.prix) * parseInt(input.value || 0);
         });
-        totalEl.textContent = total.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' €';
+        document.getElementById('total').textContent =
+            total.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' €';
     }
-
-    inputs.forEach(i => i.addEventListener('input', recalculer));
 </script>
 {% endblock %}
