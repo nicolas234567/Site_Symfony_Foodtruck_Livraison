@@ -32,10 +32,10 @@ security:
         - { path: ^/connexion,   roles: PUBLIC_ACCESS }
         - { path: ^/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/api/produits, roles: PUBLIC_ACCESS }
-        - { path: ^/api,         roles: ROLE_ADMIN }
-        - { path: ^/admin,       roles: ROLE_ADMIN }
-        - { path: ^/commandes,   roles: ROLE_USER }
-        - { path: ^/produits/(nouveau|.*/modifier|.*/supprimer), roles: ROLE_ADMIN }
+        - { path: ^/api,         roles: PUBLIC_ACCESS }
+        - { path: ^/admin,       roles: PUBLIC_ACCESS }
+        - { path: ^/commandes,   roles: PUBLIC_ACCESS }
+        - { path: ^/produits/(nouveau|.*/modifier|.*/supprimer), roles: PUBLIC_ACCESS }
         - { path: ^/produits,    roles: PUBLIC_ACCESS }
 
     role_hierarchy:

@@ -1,9 +1,10 @@
 {% extends 'base.html.twig' %}
 {% block title %}Passer une commande{% endblock %}
+
 {% block body %}
 <h1 class="mb-4"><i class="bi bi-cart-plus text-warning"></i> Passer une commande</h1>
 
-<form method="post">
+<form method="post" id="formCommande">
     <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
         {% for produit in produits %}
         <div class="col">
@@ -11,8 +12,8 @@
                 {% if produit.image %}
                     <div style="height:200px;background:#1a1a2e;overflow:hidden;position:relative;">
                         <img src="{{ asset('uploads/produits/' ~ produit.image) }}"
-                            alt="{{ produit.nom }}"
-                            style="width:100%;height:100%;object-fit:cover;object-position:center;opacity:0.92;">
+                             alt="{{ produit.nom }}"
+                             style="width:100%;height:100%;object-fit:cover;object-position:center;opacity:0.92;">
                     </div>
                 {% else %}
                     <div style="height:200px;background:#1a1a2e;display:flex;align-items:center;justify-content:center;">
@@ -59,7 +60,7 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-orange btn-lg">
+    <button type="submit" class="btn btn-orange btn-lg" id="btnConfirmer">
         <i class="bi bi-check-circle"></i> Confirmer la commande
     </button>
     <a href="{{ path('produit_index') }}" class="btn btn-outline-secondary btn-lg ms-2">Annuler</a>
@@ -87,5 +88,13 @@
         document.getElementById('total').textContent =
             total.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' €';
     }
+
+    // ⚡ Mode démo : empêcher l'envoi du formulaire
+    {% if demoMode %}
+    document.getElementById('btnConfirmer').addEventListener('click', function(e) {
+        e.preventDefault(); // empêche l'envoi
+        alert('Impossible de confirmer la commande en mode démo !');
+    });
+    {% endif %}
 </script>
 {% endblock %}

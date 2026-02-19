@@ -44,7 +44,14 @@
     </div>
 {% endif %}
 
+{# ✅ Bouton visible pour tout le monde #}
 <a href="{{ path('commande_new') }}" class="btn btn-orange mt-3">
     <i class="bi bi-cart-plus"></i> Nouvelle commande
 </a>
+
+{# Si tu veux montrer les boutons admin dans la démo #}
+<a href="{{ path('produit_new') }}" class="btn btn-orange mt-3">
+    <i class="bi bi-plus-circle"></i> Nouveau produit (admin demo)
+</a>
+
 {% endblock %}
