@@ -3,11 +3,13 @@
 ## A quel besoin répond ce site 
 
 Pour le client:
+
 - Consultation du menu et commander.
 - Suivre l'état de ces commandes.
 - Avoir un historique (date, prosuits, prix)
 
 Pour le restaurateur :
+
 -Ajouter, modifier et supprimer simplement ces produits.
 - Recevoir ces commandes avec une interface et sans erreurs.
 - Modifier le statut de la commande pour tenir inforer le client.
