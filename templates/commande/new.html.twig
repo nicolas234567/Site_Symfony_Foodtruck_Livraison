@@ -90,7 +90,7 @@
     }
 
     // ⚡ Mode démo : empêcher l'envoi du formulaire
-    {% if demoMode %}
+    {% if demoMode is defined and demoMode %}
     document.getElementById('btnConfirmer').addEventListener('click', function(e) {
         e.preventDefault(); // empêche l'envoi
         alert('Impossible de confirmer la commande en mode démo !');

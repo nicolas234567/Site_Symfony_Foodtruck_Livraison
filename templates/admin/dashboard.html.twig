@@ -67,7 +67,7 @@
                     <span class="badge badge-{{ commande.statut }}">{{ commande.statutLabel }}</span>
                 </td>
                 <td>
-                    {% if demoMode %}
+                    {% if demoMode is defined and demoMode %}
                         <div class="d-flex gap-1">
                             <select class="form-select form-select-sm" style="width:140px;">
                                 <option value="en_attente" {{ commande.statut == 'en_attente' ? 'selected' }}>En attente</option>

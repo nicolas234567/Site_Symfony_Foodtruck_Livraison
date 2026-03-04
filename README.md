@@ -1,185 +1,113 @@
-# Site Symfony Foodtruck Livraison
+# 🍔 Lens FoodTruck — Symfony
 
-Site web de commande en ligne pour un foodtruck, avec une interface client
-pour passer commande et une interface admin pour gerer le menu et les livraisons.
-
----
-
-## A quel besoin repond ce site
-
-Les foodtrucks gèrent souvent leurs commandes a l'oral, ce qui entraine des erreurs
-et aucune visibilite sur l'activite. Ce site centralise tout en un seul outil.
-
-**Pour le client :**
-- Consulter le menu et passer commande en ligne
-- Suivre l'etat de sa commande (en attente, en preparation, prete)
-- Consulter l'historique de ses commandes
-
-**Pour le restaurateur :**
-- Gerer ses produits (ajout, modification, suppression)
-- Recevoir et suivre les commandes via une interface claire
-- Consulter le nombre de commandes et le chiffre d'affaires du jour
+Site de commande en ligne pour un food-truck.  
+Interface client pour passer commande, interface admin pour gérer le menu, les commandes et le chiffre d'affaires du jour.
 
 ---
 
-## Prerequis
+## ⚡ Installation rapide
 
-- **PHP 8.1+**
-- **Composer**
-- **MySQL 8.0+** ou SQLite (plus simple, ideal en dev)
-- **Symfony CLI** (recommande) : https://symfony.com/download
+### 1. Cloner / télécharger le projet
 
----
-
-## Installation & lancement
-
-### 1 -- Cloner le projet
-
-```
-git clone https://github.com/nicolas234567/Site_Symfony_Foodtruck_Livraison.git
+```bash
+git clone https://github.com/ton-repo/Site_Symfony_Foodtruck_Livraison.git
 cd Site_Symfony_Foodtruck_Livraison
 ```
 
-### 2 -- Installer les dependances PHP
+### 2. Installer les dépendances PHP
 
-```
+```bash
 composer install
 ```
 
-### 3 -- Configurer la base de donnees
+### 3. Créer la base de données
 
-Ouvrir le fichier `.env` et modifier selon votre config :
+La base de données est **SQLite** — aucune installation de serveur nécessaire.
 
-```
-# MySQL
-DATABASE_URL="mysql://VOTRE_USER:VOTRE_MOT_DE_PASSE@127.0.0.1:3306/lens_foodtruck?serverVersion=8.0"
-
-# SQLite (aucune installation requise)
-DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
-```
-
-### 4 -- Creer la base de donnees et les tables
-
-```
+```bash
 php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
+php bin/console doctrine:schema:create
 ```
 
-### 5 -- Creer un compte admin
+> La base est vide à la création. Tu devras créer ton compte via `/inscription` puis te passer admin (voir étape suivante).
 
-Depuis `/inscription`, creer un compte puis passer le role en admin en BDD :
+### 4. Lancer le serveur
 
-```sql
-UPDATE user SET roles = '["ROLE_ADMIN"]' WHERE email = 'votre@email.fr';
-```
-
-### 6 -- Compiler les assets et lancer le serveur
-
-```
-npm install
-npm run dev
+```bash
 symfony server:start
+```
+
+Ou sans la CLI Symfony :
+
+```bash
+php -S localhost:8000 -t public/
 ```
 
 Ouvrir **http://localhost:8000**
 
 ---
 
-## Stack technique
+## 👤 Créer un compte et devenir admin
 
-* **Symfony 6.4** -- framework PHP, routing, controllers, Doctrine ORM
-* **Twig** -- moteur de templates
-* **Doctrine / MySQL ou SQLite** -- base de donnees et migrations
-* **Webpack Encore** -- compilation des assets JS et CSS
+1. Va sur **http://localhost:8000/inscription** et crée ton compte
+2. Dans un terminal, exécute cette commande en remplaçant l'email :
 
----
-
-## Structure des fichiers
-
-```
-Site_Symfony_Foodtruck_Livraison/
-├── assets/                        <- JS et CSS sources
-├── config/
-│   └── packages/
-│       ├── security.yaml          <- Roles et access_control
-│       └── doctrine.yaml          <- Config BDD
-├── migrations/
-│   └── Version20260101000000.php  <- Migration SQL (toutes les tables)
-├── public/
-│   ├── index.php                  <- Point d'entree web
-│   └── uploads/produits/          <- Images uploadees
-├── src/
-│   ├── Controller/
-│   │   ├── ProduitController.php  <- CRUD produits
-│   │   ├── CommandeController.php <- Logique commandes
-│   │   ├── ApiController.php      <- Routes /api/*
-│   │   └── SecurityController.php <- Login / Logout / Inscription
-│   ├── Entity/
-│   │   ├── User.php
-│   │   ├── Produit.php
-│   │   ├── Commande.php
-│   │   └── LigneCommande.php
-│   ├── Form/
-│   │   ├── ProduitType.php
-│   │   └── RegistrationFormType.php
-│   └── Repository/                <- Requetes BDD personnalisees
-├── templates/
-│   ├── base.html.twig             <- Layout principal
-│   ├── produit/                   <- Vues CRUD produits
-│   ├── commande/                  <- Vues commandes
-│   ├── admin/                     <- Dashboard admin
-│   └── security/                  <- Login / Inscription
-├── .env                           <- Variables d'environnement (BDD...)
-├── FIXTURES_INFO.php              <- Comptes de test
-├── composer.json                  <- Dependances PHP
-├── package.json                   <- Dependances JS
-└── webpack.config.js              <- Configuration Webpack Encore
+```bash
+php bin/console doctrine:query:sql "UPDATE user SET roles = '[\"ROLE_ADMIN\"]' WHERE email = 'ton@email.fr'"
 ```
 
----
-
-## Routes disponibles
-
-| URL | Acces | Description |
-|-----|-------|-------------|
-| `/produits` | Public | Menu -- liste des produits |
-| `/produits/nouveau` | Admin | Creer un produit |
-| `/produits/{id}/modifier` | Admin | Modifier un produit |
-| `/commandes` | Client | Mes commandes |
-| `/commandes/nouvelle` | Client | Passer une commande |
-| `/admin` | Admin | Dashboard + CA du jour |
-| `/connexion` | Public | Page de connexion |
-| `/inscription` | Public | Creer un compte |
-| `/api/produits` | Public | JSON liste produits |
-| `/api/commandes/jour` | Admin | JSON commandes du jour |
+3. Déconnecte-toi et reconnecte-toi → le lien **Admin** apparaît dans la navbar
 
 ---
 
-## Controles automatiques
+## 🔐 Rôles et accès
 
-- Impossible de passer une commande avec un nombre d'articles negatif ou superieur a 20
-
----
-
-## Gestion des acces
-
-| Role | Permissions |
+| Rôle | Permissions |
 |------|-------------|
 | Public | Voir le menu, s'inscrire, se connecter |
-| `ROLE_USER` | Passer des commandes, voir ses propres commandes |
-| `ROLE_ADMIN` | Tout + gerer les produits, voir toutes les commandes, dashboard |
-
-- Connexion obligatoire pour passer une commande
-- Menus commandes et historique masques si non connecte
-- Menu admin masque sans le role `ROLE_ADMIN`
+| `ROLE_USER` | Passer et consulter ses propres commandes |
+| `ROLE_ADMIN` | Tout + gérer produits, toutes les commandes, dashboard stats |
 
 ---
 
-## Commandes utiles en developpement
+## 📁 Structure du projet
 
 ```
-php bin/console cache:clear
-php bin/console debug:router
-php bin/console doctrine:schema:drop --force
-php bin/console doctrine:schema:create
+src/
+├── Controller/
+│   ├── AdminController.php      ← Dashboard + changement de statut
+│   ├── ProduitController.php    ← CRUD produits
+│   ├── CommandeController.php   ← Créer / consulter commandes
+│   ├── ApiController.php        ← GET /api/produits, /api/commandes/jour
+│   └── SecurityController.php  ← Login / Inscription
+├── Entity/                      ← User, Produit, Commande, LigneCommande
+├── Form/                        ← ProduitType, RegistrationFormType
+└── Repository/                  ← Requêtes DQL personnalisées
+
+templates/
+├── base.html.twig               ← Layout Bootstrap (navbar, footer)
+├── admin/dashboard.html.twig    ← Stats du jour + gestion statuts
+├── produit/                     ← Liste, création, édition produits
+├── commande/                    ← Nouvelle commande, mes commandes, détail
+└── security/                    ← Login, inscription
+
+var/data.db                      ← Base SQLite (créée à l'étape 3)
 ```
+
+---
+
+## 🛠️ Stack technique
+
+- **Symfony 6.4** — routing, controllers, Doctrine ORM, Security
+- **Twig** — templates
+- **SQLite** — base de données embarquée, aucune config serveur
+- **Bootstrap 5** — UI responsive
+
+---
+
+## 🔌 API
+
+| Route | Accès | Description |
+|-------|-------|-------------|
+| `GET /api/produits` | Public | Liste des produits disponibles |
+| `GET /api/commandes/jour` | Admin | Commandes du jour + chiffre d'affaires |
